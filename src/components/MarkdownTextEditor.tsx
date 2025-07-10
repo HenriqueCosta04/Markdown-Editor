@@ -1,6 +1,7 @@
 import React from "react";
 import "@remirror/styles/all.css";
 import { css } from "@emotion/css";
+import * as S from 'styled-components';
 import { ExtensionPriority, getThemeVar } from "remirror";
 import { createContextState } from "create-context-state";
 import {

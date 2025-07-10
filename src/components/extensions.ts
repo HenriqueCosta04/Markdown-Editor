@@ -26,4 +26,5 @@ export const extensions = () => [
    * e.g. in a list item
    */
   new HardBreakExtension(),
+  new TableExtension({}),
 ];
