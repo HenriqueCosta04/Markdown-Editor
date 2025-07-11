@@ -37,6 +37,7 @@ function App() {
       <MarkdownTextEditorComponent
         markdown={markdown}
         onMarkdownChange={handleMarkdownChange}
+        
       />
       {/* <DualEditor /> */}
     </Container>

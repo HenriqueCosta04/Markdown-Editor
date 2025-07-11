@@ -1,7 +1,6 @@
 import { Remirror, useRemirror, useRemirrorContext } from "@remirror/react"
 import { extensions } from "./extensions";
 import React, { createContext, useContext, useEffect } from "react";
-import { DocExtension, CodeBlockExtension } from "remirror/extensions";
 import { MarkdownToolbar } from "@remirror/react-ui";
 import { IconButton } from "@mui/material";
 
@@ -14,9 +13,7 @@ import RedoIcon from '@mui/icons-material/Redo';
 import UndoIcon from '@mui/icons-material/Undo';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
-import AddLinkIcon from '@mui/icons-material/AddLink';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import DataObjectIcon from '@mui/icons-material/DataObject';
 
 import styled from "styled-components";
 
@@ -111,24 +108,9 @@ const Preview = () => {
   );
 };
 
-const Toolbar = () => {
-  const context = useContext(EditorContext);
-  if (!context) throw new Error("CustomToolbar must be used within EditorProvider");
-  const { visualManager } = context;
 
-
-  if (!visualManager) {
-    return null;
-  }
-
-  return (
-    <Remirror manager={visualManager}>
-      <MarkdownToolbar />
-    </Remirror>
-  );
-}
-
-const CustomToolbar = () => {
+const CustomToolbar = (Props: { showTableUtils?: boolean }) => {
+  const { showTableUtils } = Props;
   const context = useContext(EditorContext);
   if (!context) throw new Error("CustomToolbar must be used within EditorProvider");
   const { visualManager } = context;
@@ -203,7 +185,12 @@ const CustomToolbar = () => {
         >
           <CodeIcon />
         </StyledIconButton>
-
+        <StyledIconButton
+          onClick={() => commands.createCodeBlock({ language: 'json' })}
+          title="Bloco de Código (JSON)"
+        >
+          <DataObjectIcon />
+        </StyledIconButton>
         <StyledIconButton
           className={active.blockquote() ? 'active' : ''}
           onClick={() => commands.toggleBlockquote()}
@@ -232,7 +219,6 @@ const CustomToolbar = () => {
         >
           <FormatListBulletedIcon />
         </StyledIconButton>
-
         <StyledIconButton
           className={active.orderedList() ? 'active' : ''}
           onClick={() => commands.toggleOrderedList()}
@@ -240,36 +226,34 @@ const CustomToolbar = () => {
         >
           <FormatListNumberedIcon />
         </StyledIconButton>
-        <StyledIconButton
-          onClick={() => commands.createTable()}
-          title="Adicionar Tabela"
-        >
-          <img src="/table-add.svg" alt="Table" style={{ width: '24px', height: '30px' }} />
-        </StyledIconButton>
-          <StyledIconButton
-           onClick={() => commands.addTableRowAfter()}
-           title="Adicionar Linha à Tabela"
+        {showTableUtils && (
+          <><StyledIconButton
+            onClick={() => commands.createTable()}
+            title="Adicionar Tabela"
           >
-            <img src="/add-row.svg" alt="Add Row" style={{ width: '24px', height: '30px' }} />
-        </StyledIconButton>
-        <StyledIconButton
-          onClick={() => commands.addTableColumnAfter()}
-          title="Adicionar Coluna à Tabela"
-        >
-          <img src="/add-column.svg" alt="Add Column" style={{ width: '24px', height: '30px' }} />
-        </StyledIconButton>
-        <StyledIconButton
-          onClick={() => commands.deleteTableRow()}
-          title="Excluir Linha da Tabela"
-        >
-          <img src="/table-row-remove.svg" alt="Delete Row" style={{ width: '24px', height: '30px' }} />
-        </StyledIconButton>
-        <StyledIconButton
-          onClick={() => commands.deleteTableColumn()}
-          title="Excluir Coluna da Tabela"
-        >
-          <img src="/table-delete-column.svg" alt="Delete Column" style={{ width: '24px', height: '30px' }} />
-        </StyledIconButton>
+            <img src="/table-add.svg" alt="Table" style={{ width: '24px', height: '30px' }} />
+          </StyledIconButton><StyledIconButton
+            onClick={() => commands.addTableRowAfter()}
+            title="Adicionar Linha à Tabela"
+          >
+              <img src="/add-row.svg" alt="Add Row" style={{ width: '24px', height: '30px' }} />
+            </StyledIconButton><StyledIconButton
+              onClick={() => commands.addTableColumnAfter()}
+              title="Adicionar Coluna à Tabela"
+            >
+              <img src="/add-column.svg" alt="Add Column" style={{ width: '24px', height: '30px' }} />
+            </StyledIconButton><StyledIconButton
+              onClick={() => commands.deleteTableRow()}
+              title="Excluir Linha da Tabela"
+            >
+              <img src="/table-row-remove.svg" alt="Delete Row" style={{ width: '24px', height: '30px' }} />
+            </StyledIconButton><StyledIconButton
+              onClick={() => commands.deleteTableColumn()}
+              title="Excluir Coluna da Tabela"
+            >
+              <img src="/table-delete-column.svg" alt="Delete Column" style={{ width: '24px', height: '30px' }} />
+            </StyledIconButton></>
+        )}
       </StyledToolbar>
     );
   };
@@ -288,15 +272,17 @@ const CustomToolbar = () => {
 interface MarkdownTextEditorComponentProps {
   markdown?: string;
   onMarkdownChange?: (markdown: string) => void;
+  showPreview?: boolean;
+  showTableUtils?: boolean;
 }
 
 export const MarkdownTextEditorComponent = (Props: MarkdownTextEditorComponentProps) => {
-  const { markdown, onMarkdownChange } = Props;
+  const { markdown, onMarkdownChange, showPreview, showTableUtils } = Props;
   return (
     <EditorProvider markdown={markdown} onMarkdownChange={onMarkdownChange}>
-      <CustomToolbar />
+      <CustomToolbar showTableUtils={showTableUtils} />
       <Editor />
-      <Preview />
+      {showPreview && <Preview />}
     </EditorProvider>
   );
 }
