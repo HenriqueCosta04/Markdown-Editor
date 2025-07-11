@@ -1,9 +1,7 @@
 import { Remirror, useRemirror, useRemirrorContext } from "@remirror/react"
 import { extensions } from "./extensions";
 import React, { createContext, useContext, useEffect } from "react";
-import { MarkdownToolbar } from "@remirror/react-ui";
 import { IconButton } from "@mui/material";
-
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
 import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
@@ -64,14 +62,30 @@ const Editor = () => {
 
   const { visualManager, setCurrentMarkdown } = context;
 
+  const StyledEditor = styled.div`
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    outline: none;
+
+    *:focus {
+    outline: none;
+    }
+  `;
   return (
-    <Remirror
-      manager={visualManager}
-      onChange={({ helpers, state }) => {
-        const markdown = helpers.getMarkdown(state);
-        setCurrentMarkdown(markdown);
-      }}
-    />
+    <StyledEditor>
+      <Remirror
+        manager={visualManager}
+        autoFocus
+        onChange={({ helpers, state }) => {
+          const markdown = helpers.getMarkdown(state);
+          setCurrentMarkdown(markdown);
+        }}
+      />
+    </StyledEditor>
   );
 };
 
@@ -81,6 +95,21 @@ const Preview = () => {
 
   const { markdownManager, currentMarkdown } = context;
 
+  const StyledPreview = styled.div`
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+    overflow-x: auto;
+
+    pre {
+      margin: 0;
+      padding: 0;
+      font-family: monospace;
+    }
+  `;
   useEffect(() => {
     if (markdownManager && markdownManager.view) {
       markdownManager.view.updateState(
@@ -101,10 +130,12 @@ const Preview = () => {
   }, [currentMarkdown, markdownManager]);
 
   return (
-    <Remirror
-      manager={markdownManager}
-      editable={false}
-    />
+    <StyledPreview>
+      <Remirror
+        manager={markdownManager}
+        autoFocus={false}
+      />
+    </StyledPreview>
   );
 };
 

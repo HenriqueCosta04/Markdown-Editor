@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { DualEditor } from "./components/MarkdownTextEditor";
 import { MarkdownTextEditorComponent } from "./components/MarkdownTextEditor.simplified";
 import { useState } from "react";
 
@@ -37,7 +36,7 @@ function App() {
       <MarkdownTextEditorComponent
         markdown={markdown}
         onMarkdownChange={handleMarkdownChange}
-        
+        showPreview
       />
       {/* <DualEditor /> */}
     </Container>
