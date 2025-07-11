@@ -37,6 +37,7 @@ function App() {
         markdown={markdown}
         onMarkdownChange={handleMarkdownChange}
         showPreview
+        showTableUtils
       />
       {/* <DualEditor /> */}
     </Container>

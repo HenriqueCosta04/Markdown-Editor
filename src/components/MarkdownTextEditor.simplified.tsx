@@ -1,6 +1,6 @@
 import { Remirror, useRemirror, useRemirrorContext } from "@remirror/react"
 import { extensions } from "./extensions";
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useCallback, useMemo, memo } from "react";
 import { IconButton } from "@mui/material";
 import FormatBoldIcon from '@mui/icons-material/FormatBold';
 import FormatItalicIcon from '@mui/icons-material/FormatItalic';
@@ -28,7 +28,7 @@ interface EditorProviderProps {
   markdown?: string;
 }
 
-const EditorProvider: React.FC<EditorProviderProps> = ({ children, onMarkdownChange, markdown }) => {
+const EditorProvider: React.FC<EditorProviderProps> = memo(({ children, onMarkdownChange, markdown }) => {
   const visualManager = useRemirror({
     extensions,
     stringHandler: "markdown",
@@ -40,94 +40,141 @@ const EditorProvider: React.FC<EditorProviderProps> = ({ children, onMarkdownCha
     stringHandler: "markdown",
   });
 
-  return (
-    <EditorContext.Provider value={{
-      visualManager: visualManager.manager,
-      markdownManager: markdownManager.manager,
-      currentMarkdown: markdown || "",
-      setCurrentMarkdown: (value: string) => {
-        if (onMarkdownChange) {
-          onMarkdownChange(value);
-        }
+  const contextValue = useMemo(() => ({
+    visualManager: visualManager.manager,
+    markdownManager: markdownManager.manager,
+    currentMarkdown: markdown || "",
+    setCurrentMarkdown: (value: string) => {
+      if (onMarkdownChange) {
+        onMarkdownChange(value);
       }
-    }}>
+    }
+  }), [visualManager.manager, markdownManager.manager, markdown, onMarkdownChange]);
+
+  return (
+    <EditorContext.Provider value={contextValue}>
       {children}
     </EditorContext.Provider>
   );
-};
+});
 
-const Editor = () => {
+const StyledEditor = styled.div`
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+
+  *:focus {
+    outline: none;
+  }
+
+  /* Table styling */
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  tr:hover {
+    background-color: #f0f0f0;
+  }
+
+  .ProseMirror-selectednode {
+    background-color: #e3f2fd !important;
+  }
+
+  /* Table controls */
+  .tableWrapper {
+    overflow-x: auto;
+  }
+`;
+
+const Editor = memo(() => {
   const context = useContext(EditorContext);
   if (!context) throw new Error("Editor must be used within EditorProvider");
 
   const { visualManager, setCurrentMarkdown } = context;
+  
+  const handleChange = useCallback(({ helpers, state }) => {
+    const markdown = helpers.getMarkdown(state);
+    setCurrentMarkdown(markdown);
+  }, [setCurrentMarkdown]);
 
-  const StyledEditor = styled.div`
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 16px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 16px;
-    outline: none;
-
-    *:focus {
-    outline: none;
-    }
-  `;
   return (
     <StyledEditor>
       <Remirror
         manager={visualManager}
         autoFocus
-        onChange={({ helpers, state }) => {
-          const markdown = helpers.getMarkdown(state);
-          setCurrentMarkdown(markdown);
-        }}
+        onChange={handleChange}
       />
     </StyledEditor>
   );
-};
+});
 
-const Preview = () => {
+const StyledPreview = styled.div`
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #1f1f1f;
+  color: #f8f8f2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  overflow-x: auto;
+
+  pre {
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+  }
+`;
+
+const Preview = memo(() => {
   const context = useContext(EditorContext);
   if (!context) throw new Error("Preview must be used within EditorProvider");
 
   const { markdownManager, currentMarkdown } = context;
 
-  const StyledPreview = styled.div`
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 16px;
-    background-color: #f8f9fa;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 16px;
-    overflow-x: auto;
-
-    pre {
-      margin: 0;
-      padding: 0;
-      font-family: monospace;
-    }
-  `;
-  useEffect(() => {
-    if (markdownManager && markdownManager.view) {
-      markdownManager.view.updateState(
-        markdownManager.createState({
-          content: {
-            type: "doc",
-            content: [
-              {
-                type: "codeBlock",
-                attrs: { language: "markdown" },
-                content: currentMarkdown ? [{ type: "text", text: currentMarkdown }] : [],
-              },
-            ],
-          },
-        })
-      );
-    }
+  const createMarkdownContent = useCallback(() => {
+    if (!markdownManager || !markdownManager.view) return;
+    
+    markdownManager.view.updateState(
+      markdownManager.createState({
+        content: {
+          type: "doc",
+          content: [
+            {
+              type: "codeBlock",
+              attrs: { language: "markdown" },
+              content: currentMarkdown ? [{ type: "text", text: currentMarkdown }] : [],
+            },
+          ],
+        },
+      })
+    );
   }, [currentMarkdown, markdownManager]);
+
+  useEffect(() => {
+    createMarkdownContent();
+  }, [createMarkdownContent]);
 
   return (
     <StyledPreview>
@@ -137,50 +184,50 @@ const Preview = () => {
       />
     </StyledPreview>
   );
-};
+});
 
 
-const CustomToolbar = (Props: { showTableUtils?: boolean }) => {
+const StyledToolbar = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const StyledIconButton = styled(IconButton)`
+  &.MuiIconButton-root {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #dee2e6;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 1);
+    }
+
+    &.active {
+      background: #ff7f11;
+      color: white;
+      border-color: #ff7f11;
+    }
+  }
+`;
+
+const CustomToolbar = memo((Props: { showTableUtils?: boolean }) => {
   const { showTableUtils } = Props;
   const context = useContext(EditorContext);
   if (!context) throw new Error("CustomToolbar must be used within EditorProvider");
   const { visualManager } = context;
 
-  const StyledToolbar = styled.div`
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  `;
-
-  const StyledIconButton = styled(IconButton)`
-    &.MuiIconButton-root {
-      width: 40px;
-      height: 40px;
-      border-radius: 6px;
-      transition: all 0.2s ease;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid #dee2e6;
-
-      &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        background: rgba(255, 255, 255, 1);
-      }
-
-      &.active {
-        background: #ff7f11;
-        color: white;
-        border-color: #ff7f11;
-      }
-    }
-  `;
-
-  const ToolbarContent = () => {
+  const ToolbarContent = memo(() => {
     const { commands, active } = useRemirrorContext({ autoUpdate: true });
 
     return (
@@ -287,7 +334,7 @@ const CustomToolbar = (Props: { showTableUtils?: boolean }) => {
         )}
       </StyledToolbar>
     );
-  };
+  });
 
   if (!visualManager) {
     return null;
@@ -298,7 +345,7 @@ const CustomToolbar = (Props: { showTableUtils?: boolean }) => {
       <ToolbarContent />
     </Remirror>
   );
-}
+});
 
 interface MarkdownTextEditorComponentProps {
   markdown?: string;
@@ -307,7 +354,7 @@ interface MarkdownTextEditorComponentProps {
   showTableUtils?: boolean;
 }
 
-export const MarkdownTextEditorComponent = (Props: MarkdownTextEditorComponentProps) => {
+export const MarkdownTextEditorComponent = memo((Props: MarkdownTextEditorComponentProps) => {
   const { markdown, onMarkdownChange, showPreview, showTableUtils } = Props;
   return (
     <EditorProvider markdown={markdown} onMarkdownChange={onMarkdownChange}>
@@ -316,5 +363,5 @@ export const MarkdownTextEditorComponent = (Props: MarkdownTextEditorComponentPr
       {showPreview && <Preview />}
     </EditorProvider>
   );
-}
+});
 
