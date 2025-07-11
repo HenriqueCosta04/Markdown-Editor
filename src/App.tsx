@@ -11,20 +11,17 @@ const Container = styled.div`
   color: #333;
   max-width: 800px;
   margin: 0 auto;
-`;
 
-const ContentBlock = styled.div`
-  margin-bottom: 20px;
-  padding: 10px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-
-  h3 {
-    margin-top: 0;
-    color: #555;
+  h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  p {
+    font-size: 16px;
+    margin-bottom: 20px;
   }
 `;
+
 
 function App() {
   const [markdown, setMarkdown] = useState("**Markdown** content is the _best_");
@@ -32,8 +29,11 @@ function App() {
   const handleMarkdownChange = (newMarkdown: string) => {
     setMarkdown(newMarkdown);
   };
+  
   return (
     <Container>
+      <h1>Markdown Text Editor</h1>
+      <p>Edit your markdown content below:</p>
       <MarkdownTextEditorComponent
         markdown={markdown}
         onMarkdownChange={handleMarkdownChange}
