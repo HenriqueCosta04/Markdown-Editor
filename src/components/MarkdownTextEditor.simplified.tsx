@@ -175,7 +175,7 @@ const CustomToolbar = () => {
         <StyledIconButton
           className={active.bold() ? 'active' : ''}
           onClick={() => commands.toggleBold()}
-          title="Bold"
+          title="Negrito"
         >
           <FormatBoldIcon />
         </StyledIconButton>
@@ -183,7 +183,7 @@ const CustomToolbar = () => {
         <StyledIconButton
           className={active.italic() ? 'active' : ''}
           onClick={() => commands.toggleItalic()}
-          title="Italic"
+          title="Itálico"
         >
           <FormatItalicIcon />
         </StyledIconButton>
@@ -191,7 +191,7 @@ const CustomToolbar = () => {
         <StyledIconButton
           className={active.strike() ? 'active' : ''}
           onClick={() => commands.toggleStrike()}
-          title="Strikethrough"
+          title="Sublinhado"
         >
           <StrikethroughSIcon />
         </StyledIconButton>
@@ -199,7 +199,7 @@ const CustomToolbar = () => {
         <StyledIconButton
           className={active.code() ? 'active' : ''}
           onClick={() => commands.toggleCode()}
-          title="Inline Code"
+          title="Código (inline)"
         >
           <CodeIcon />
         </StyledIconButton>
@@ -207,28 +207,28 @@ const CustomToolbar = () => {
         <StyledIconButton
           className={active.blockquote() ? 'active' : ''}
           onClick={() => commands.toggleBlockquote()}
-          title="Quote"
+          title="Citação"
         >
           <FormatQuoteIcon />
         </StyledIconButton>
 
         <StyledIconButton
           onClick={() => commands.undo()}
-          title="Undo"
+          title="Desfazer"
         >
           <UndoIcon />
         </StyledIconButton>
 
         <StyledIconButton
           onClick={() => commands.redo()}
-          title="Redo"
+          title="Refazer"
         >
           <RedoIcon />
         </StyledIconButton>
         <StyledIconButton
           className={active.bulletList() ? 'active' : ''}
           onClick={() => commands.toggleBulletList()}
-          title="Bullet List"
+          title="Lista com marcadores"
         >
           <FormatListBulletedIcon />
         </StyledIconButton>
@@ -236,17 +236,40 @@ const CustomToolbar = () => {
         <StyledIconButton
           className={active.orderedList() ? 'active' : ''}
           onClick={() => commands.toggleOrderedList()}
-          title="Numbered List"
+          title="Lista numerada"
         >
           <FormatListNumberedIcon />
         </StyledIconButton>
         <StyledIconButton
           onClick={() => commands.createTable()}
-          title="Create Table"
+          title="Adicionar Tabela"
         >
-          <img src="/table.svg" alt="Table" style={{ width: '24px', height: '30px' }} />
+          <img src="/table-add.svg" alt="Table" style={{ width: '24px', height: '30px' }} />
         </StyledIconButton>
-        
+          <StyledIconButton
+           onClick={() => commands.addTableRowAfter()}
+           title="Adicionar Linha à Tabela"
+          >
+            <img src="/add-row.svg" alt="Add Row" style={{ width: '24px', height: '30px' }} />
+        </StyledIconButton>
+        <StyledIconButton
+          onClick={() => commands.addTableColumnAfter()}
+          title="Adicionar Coluna à Tabela"
+        >
+          <img src="/add-column.svg" alt="Add Column" style={{ width: '24px', height: '30px' }} />
+        </StyledIconButton>
+        <StyledIconButton
+          onClick={() => commands.deleteTableRow()}
+          title="Excluir Linha da Tabela"
+        >
+          <img src="/table-row-remove.svg" alt="Delete Row" style={{ width: '24px', height: '30px' }} />
+        </StyledIconButton>
+        <StyledIconButton
+          onClick={() => commands.deleteTableColumn()}
+          title="Excluir Coluna da Tabela"
+        >
+          <img src="/table-delete-column.svg" alt="Delete Column" style={{ width: '24px', height: '30px' }} />
+        </StyledIconButton>
       </StyledToolbar>
     );
   };
