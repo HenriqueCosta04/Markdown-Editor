@@ -23,4 +23,5 @@ function App() {
 
 ## Próximas Funcionalidades
 
-- [ ] Implementar conversor completo de HTML para Markdown em [`tableHtmlToMD.ts`](src/helpers/tableHtmlToMD.ts)
+- [X] Implementar conversor completo de HTML para Markdown em [`tableHtmlToMD.ts`](src/helpers/tableHtmlToMD.ts)
+- [ ] Inserir o conversor de html para markdown no contexto da biblioteca.
