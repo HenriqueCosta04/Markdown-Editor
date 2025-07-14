@@ -12,8 +12,11 @@ import UndoIcon from '@mui/icons-material/Undo';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import DataObjectIcon from '@mui/icons-material/DataObject';
+import 'remirror/styles/all.css';
+
 
 import styled from "styled-components";
+import { HeadingLevelButtonGroup, ToggleHeadingButton } from "@remirror/react-ui";
 
 const EditorContext = createContext<{
   visualManager: any;
@@ -32,13 +35,25 @@ const EditorProvider: React.FC<EditorProviderProps> = memo(({ children, onMarkdo
   const visualManager = useRemirror({
     extensions,
     stringHandler: "markdown",
-    content: markdown || "",
+    content: markdown,
+    selection: "end",
   });
 
   const markdownManager = useRemirror({
     extensions: extensions,
     stringHandler: "markdown",
   });
+
+   useEffect(() => {
+    if (markdown && visualManager.manager && visualManager.manager.view) {
+      const state = visualManager.manager.createState({
+        content: markdown,
+        stringHandler: "markdown",
+      });
+      visualManager.manager.view.updateState(state);
+    }
+  }, [markdown, visualManager.manager]);
+
 
   const contextValue = useMemo(() => ({
     visualManager: visualManager.manager,
@@ -221,6 +236,33 @@ const StyledIconButton = styled(IconButton)`
   }
 `;
 
+const StyledIconButtonGroup = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+  & > button {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #dee2e6;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 1);
+    }
+
+    &.active {
+      background: #ff7f11;
+      color: white;
+      border-color: #ff7f11;
+    }
+  };
+`;
+
 const CustomToolbar = memo((Props: { showTableUtils?: boolean }) => {
   const { showTableUtils } = Props;
   const context = useContext(EditorContext);
@@ -239,7 +281,6 @@ const CustomToolbar = memo((Props: { showTableUtils?: boolean }) => {
         >
           <FormatBoldIcon />
         </StyledIconButton>
-
         <StyledIconButton
           className={active.italic() ? 'active' : ''}
           onClick={() => commands.toggleItalic()}
@@ -247,7 +288,6 @@ const CustomToolbar = memo((Props: { showTableUtils?: boolean }) => {
         >
           <FormatItalicIcon />
         </StyledIconButton>
-
         <StyledIconButton
           className={active.strike() ? 'active' : ''}
           onClick={() => commands.toggleStrike()}
@@ -255,7 +295,29 @@ const CustomToolbar = memo((Props: { showTableUtils?: boolean }) => {
         >
           <StrikethroughSIcon />
         </StyledIconButton>
-
+        <StyledIconButtonGroup>
+          <StyledIconButton
+            className={active.heading({ level: 1 }) ? 'active' : ''}
+            onClick={() => commands.toggleHeading({ level: 1 })}
+            title="Título 1"
+          >
+            H1
+          </StyledIconButton>
+          <StyledIconButton
+            className={active.heading({ level: 2 }) ? 'active' : ''}
+            onClick={() => commands.toggleHeading({ level: 2 })}
+            title="Título 2"
+          >
+            H2
+          </StyledIconButton>
+          <StyledIconButton
+            className={active.heading({ level: 3 }) ? 'active' : ''}
+            onClick={() => commands.toggleHeading({ level: 3 })}
+            title="Título 3"
+          >
+            H3
+          </StyledIconButton>
+          </StyledIconButtonGroup>
         <StyledIconButton
           className={active.code() ? 'active' : ''}
           onClick={() => commands.toggleCode()}
