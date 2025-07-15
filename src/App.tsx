@@ -130,7 +130,7 @@ function App() {
         markdown={markdown}
         onMarkdownChange={handleMarkdownChange}
         showPreview={true}
-        showTableUtils={false}
+        showTableUtils={true}
       />
       </EditorStyles>
       </AllStyledComponent>
