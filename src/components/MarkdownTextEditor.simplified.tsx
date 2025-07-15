@@ -12,11 +12,10 @@ import UndoIcon from '@mui/icons-material/Undo';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
 import DataObjectIcon from '@mui/icons-material/DataObject';
+import InsertPageBreakIcon from '@mui/icons-material/InsertPageBreak';
 import 'remirror/styles/all.css';
 
-
 import styled from "styled-components";
-import { HeadingLevelButtonGroup, ToggleHeadingButton } from "@remirror/react-ui";
 
 const EditorContext = createContext<{
   visualManager: any;
@@ -365,6 +364,13 @@ const CustomToolbar = memo((Props: { showTableUtils?: boolean }) => {
           title="Lista numerada"
         >
           <FormatListNumberedIcon />
+        </StyledIconButton>
+        <StyledIconButton
+          className={active.hardBreak() ? 'active' : ''}
+          onClick={() => commands.insertHardBreak()}
+          title="Quebra de linha"
+        >
+          <InsertPageBreakIcon />
         </StyledIconButton>
         {showTableUtils && (
           <><StyledIconButton
